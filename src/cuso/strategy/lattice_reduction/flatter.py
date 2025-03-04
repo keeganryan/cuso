@@ -6,6 +6,7 @@ import warnings
 
 from sage.all import Matrix, ZZ
 
+from cuso.exceptions import SolveFailureError
 from .lattice_reduction import LatticeReduction
 
 
@@ -35,8 +36,8 @@ class Flatter(LatticeReduction):
             Matrix: basis matrix
         """
         rows = basis_s.split("\n")
-        assert rows[-1] == ""
-        assert rows[-2] == "]"
+        if rows[-1] != "" or rows[-2] != "]":
+            raise SolveFailureError("Malformed flatter output")
         rows = rows[:-2]
         rows = [row.lstrip("[").rstrip("]") for row in rows]
         rows = [[int(s) for s in row.split(" ")] for row in rows]
@@ -63,6 +64,8 @@ class Flatter(LatticeReduction):
 
         proc = Popen("flatter", stdin=PIPE, stdout=PIPE)
         outs, _ = proc.communicate(lat_s.encode())
+        if proc.returncode != 0:
+            raise SolveFailureError("flatter has nonzero return code")
         red_basis = self.lattice_from_str(outs.decode())
         self.logger.info("Reduced lattice basis using flatter")
         return red_basis
