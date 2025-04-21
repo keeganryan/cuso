@@ -24,8 +24,8 @@ def get_S_from_S_bar(R, M_bar, S_bar, M):
 
     # Convert back to S
     S = []
-    for i in range(len(M_bar)):
-        if B[i][-len(M):] != 0:
+    for i in range(len(S_bar)):
+        if B[i][-len(M_bar)+len(M):] != 0:
             continue
         f_i = 0
         for j, (c_j, m_j) in enumerate(zip(B[i], M)):
